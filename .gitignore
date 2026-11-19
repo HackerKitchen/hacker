@@ -1,0 +1,12 @@
+# Archivos fuente pesados / no destinados a publicarse
+_originales-no-publicar/
+
+# Herramientas internas de este entorno de trabajo (no forman parte del sitio)
+.claude/
+.claude-flow/
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log

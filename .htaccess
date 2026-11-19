@@ -1,0 +1,10 @@
+# Häcker Kitchen - canonical host and basic MIME handling
+
+AddType application/xml .xml
+
+RewriteEngine On
+
+# Force HTTPS and canonical www host
+RewriteCond %{HTTPS} !=on [OR]
+RewriteCond %{HTTP_HOST} !^www\.hackerkitchen\.com\.mx$ [NC]
+RewriteRule ^ https://www.hackerkitchen.com.mx%{REQUEST_URI} [R=301,L]
