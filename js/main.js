@@ -385,7 +385,7 @@
     }, { once: true });
   });
 
-  /* ---------- Formulario (sin backend todavía) ---------- */
+  /* ---------- Formulario de asesoría ---------- */
   var form = document.getElementById("contactForm");
   var hint = document.getElementById("formHint");
 
@@ -434,6 +434,10 @@
       });
 
       pintarPaso(false);
+      form.addEventListener("reset", function () {
+        pasoActual = 0;
+        pintarPaso(false);
+      });
 
       // Si la validación del envío falla, saltar al paso de los datos
       form.addEventListener("invalid-datos", function () {
@@ -444,8 +448,10 @@
   }
 
   if (form && hint) {
-    form.addEventListener("submit", function (event) {
+    var submit = document.getElementById("wizardSubmit");
+    form.addEventListener("submit", async function (event) {
       event.preventDefault();
+      if (submit.disabled) return;
 
       var nombre = document.getElementById("f-nombre");
       var email = document.getElementById("f-email");
@@ -476,11 +482,41 @@
         return;
       }
 
-      // TODO al publicar: añadir action="https://formspree.io/f/XXXX" method="POST"
-      // al <form> y sustituir estas dos líneas por el envío real (fetch).
-      hint.textContent = "Gracias, " + nombre.value.trim().split(" ")[0] + ". Un asesor te contactará muy pronto.";
+      var fields = new FormData(form);
+      if (fields.get("_gotcha")) {
+        hint.textContent = "No pudimos enviar tu solicitud. Revisa los datos e inténtalo de nuevo.";
+        return;
+      }
+
+      var lead = {
+        name: nombre.value.trim(),
+        email: email.value.trim(),
+        projectType: fields.get("tipo"),
+        productLine: fields.get("linea"),
+        city: fields.get("ciudad").trim(),
+        budget: fields.get("presupuesto"),
+        message: fields.get("mensaje").trim()
+      };
+      submit.disabled = true;
+      form.setAttribute("aria-busy", "true");
+      hint.textContent = "Enviando tu solicitud…";
+      try {
+        var { saveHackerLead } = await import("./hacker-leads.js");
+        await saveHackerLead(lead);
+      } catch (error) {
+        hint.textContent = "No pudimos enviar tu solicitud. Tus datos siguen en el formulario para que vuelvas a intentarlo.";
+        return;
+      } finally {
+        submit.disabled = false;
+        form.removeAttribute("aria-busy");
+      }
+
       form.reset();
+      hint.textContent = "Recibimos tu solicitud. Un asesor se pondrá en contacto contigo.";
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "generate_lead", form_id: "hacker_contact" });
     });
+    submit.disabled = false;
   }
 
   /* ---------- Año dinámico ---------- */

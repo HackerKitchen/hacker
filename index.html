@@ -993,10 +993,8 @@
             <p class="contact__address mono">TEMÍSTOCLES 51 · POLANCO · CIUDAD DE MÉXICO</p>
           </div>
 
-          <!-- NOTA: conectar action="" al backend o servicio de formularios antes de publicar -->
-          <!-- Asesoría guiada en 3 pasos. Sin JavaScript los tres pasos se
-               muestran apilados y el formulario funciona igual. -->
-          <form class="contact__form" id="contactForm" data-reveal novalidate>
+          <noscript><p class="contact__hint">Activa JavaScript para enviar tu solicitud.</p></noscript>
+          <form class="contact__form" id="contactForm" method="post" data-reveal novalidate>
             <!-- Trampa antispam: invisible para personas, tentadora para bots -->
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" class="honeypot">
 
@@ -1030,7 +1028,7 @@
               <legend class="wizard__legend">El espacio</legend>
               <div class="field">
                 <label for="f-ciudad">Ciudad del proyecto</label>
-                <input type="text" id="f-ciudad" name="ciudad" autocomplete="address-level2" placeholder="Ciudad de México">
+                <input type="text" id="f-ciudad" name="ciudad" maxlength="120" autocomplete="address-level2" placeholder="Ciudad de México">
               </div>
               <div class="field">
                 <label for="f-presupuesto">Inversión estimada</label>
@@ -1043,7 +1041,7 @@
               </div>
               <div class="field field--full">
                 <label for="f-mensaje">Cuéntanos tu visión</label>
-                <textarea id="f-mensaje" name="mensaje" rows="4" placeholder="Busco una cocina systemat en tono bronce para una residencia en Polanco…"></textarea>
+                <textarea id="f-mensaje" name="mensaje" maxlength="3000" rows="4" placeholder="Busco una cocina systemat en tono bronce para una residencia en Polanco…"></textarea>
               </div>
             </fieldset>
 
@@ -1051,11 +1049,11 @@
               <legend class="wizard__legend">Tus datos</legend>
               <div class="field">
                 <label for="f-nombre">Nombre completo <span aria-hidden="true">*</span><span class="sr-only">(obligatorio)</span></label>
-                <input type="text" id="f-nombre" name="nombre" autocomplete="name" placeholder="María Fernanda López" required>
+                <input type="text" id="f-nombre" name="nombre" maxlength="160" autocomplete="name" placeholder="María Fernanda López" required>
               </div>
               <div class="field">
                 <label for="f-email">Correo electrónico <span aria-hidden="true">*</span><span class="sr-only">(obligatorio)</span></label>
-                <input type="email" id="f-email" name="email" autocomplete="email" placeholder="tu@correo.mx" required>
+                <input type="email" id="f-email" name="email" maxlength="254" autocomplete="email" placeholder="tu@correo.mx" required>
               </div>
               <label class="field--full field-consent">
                 <input type="checkbox" id="f-privacidad" name="privacidad" required>
@@ -1067,7 +1065,7 @@
             <div class="wizard__nav field--full">
               <button class="btn btn--outline-ink wizard__btn" type="button" id="wizardPrev">Anterior</button>
               <button class="btn btn--ink wizard__btn" type="button" id="wizardNext">Siguiente</button>
-              <button class="btn btn--ink btn--lg" type="submit" id="wizardSubmit">Solicitar asesoría de diseño</button>
+              <button class="btn btn--ink btn--lg" type="submit" id="wizardSubmit" disabled>Solicitar asesoría de diseño</button>
             </div>
             <p class="contact__hint mono" id="formHint" role="status"></p>
           </form>
@@ -1162,6 +1160,6 @@
     </div>
   </footer>
 
-  <script src="js/main.js" defer></script>
+  <script src="js/main.js?v=16" defer></script>
 </body>
 </html>
