@@ -3,7 +3,6 @@
   const analyticsId = "G-S4J8G2546M";
   const metaKey = "hacker.meta-pixel.consent";
   const googleKey = "hacker.google-analytics.consent";
-  const privacyUrl = new URL("../aviso-de-privacidad.html", document.currentScript.src);
   let metaStarted = false;
   let googleStarted = false;
 
@@ -64,41 +63,34 @@
     }
   }
 
-  const notice = document.createElement("aside");
-  notice.className = "measurement-notice";
-  notice.setAttribute("aria-label", "Medición del sitio");
-  notice.innerHTML = `
-    <p>Usamos Google Analytics y el píxel de Meta para medir visitas y publicidad. <a>Aviso de privacidad</a></p>
-    <details>
-      <summary>Preferencias de cookies</summary>
-      <label><input type="checkbox" id="hacker-google-analytics"> Google Analytics</label>
-      <label><input type="checkbox" id="hacker-meta-pixel"> Píxel de Meta</label>
-    </details>
-  `;
-  notice.querySelector("a").href = privacyUrl.href;
-  document.querySelector("main").before(notice);
+  function bindPreference(key, id, apply) {
+    const checkbox = document.getElementById(id);
+    const enabled = isEnabled(key);
+    apply(enabled);
 
-  function bindPreference(key, selector, apply) {
-    const checkbox = notice.querySelector(selector);
-    checkbox.checked = isEnabled(key);
-    apply(checkbox.checked);
-
-    checkbox.addEventListener("change", () => {
-      try {
-        localStorage.setItem(key, checkbox.checked ? "granted" : "denied");
-      } catch {
-        // The selection still applies to the current page.
-      }
-      apply(checkbox.checked);
-    });
+    if (checkbox) {
+      checkbox.checked = enabled;
+      checkbox.addEventListener("change", () => {
+        try {
+          localStorage.setItem(key, checkbox.checked ? "granted" : "denied");
+        } catch {
+          // The selection still applies to the current page.
+        }
+        apply(checkbox.checked);
+      });
+    }
 
     window.addEventListener("storage", (event) => {
       if (event.key !== key && event.key !== null) return;
-      checkbox.checked = isEnabled(key);
-      apply(checkbox.checked);
+      const enabled = isEnabled(key);
+      if (checkbox) checkbox.checked = enabled;
+      apply(enabled);
     });
   }
 
-  bindPreference(googleKey, "#hacker-google-analytics", setGoogleEnabled);
-  bindPreference(metaKey, "#hacker-meta-pixel", setMetaEnabled);
+  bindPreference(googleKey, "hacker-google-analytics", setGoogleEnabled);
+  bindPreference(metaKey, "hacker-meta-pixel", setMetaEnabled);
+
+  const preferences = document.getElementById("preferencias-de-cookies");
+  if (preferences) preferences.disabled = false;
 })();

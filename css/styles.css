@@ -257,7 +257,7 @@ ul { list-style: none; }
 .hero {
   --hero-progress: 0;
   position: relative;
-  margin-top: var(--page-header-offset, var(--header-h));
+  margin-top: var(--header-h);
   isolation: isolate;
   background: #0c0d0e;
 }
@@ -1568,7 +1568,7 @@ ul { list-style: none; }
 
 /* ---------- Páginas legales ---------- */
 .legal {
-  padding: calc(var(--page-header-offset, var(--header-h)) + clamp(3rem, 7vw, 5rem)) 0 clamp(4rem, 8vw, 6rem);
+  padding: calc(var(--header-h) + clamp(3rem, 7vw, 5rem)) 0 clamp(4rem, 8vw, 6rem);
 }
 
 .legal__title {
@@ -1629,7 +1629,7 @@ ul { list-style: none; }
 
 /* ---------- 404 ---------- */
 .notfound {
-  padding: calc(var(--page-header-offset, var(--header-h)) + clamp(4rem, 12vh, 8rem)) 0 clamp(5rem, 12vh, 9rem);
+  padding: calc(var(--header-h) + clamp(4rem, 12vh, 8rem)) 0 clamp(5rem, 12vh, 9rem);
 }
 
 .notfound__title {
@@ -1873,7 +1873,7 @@ ul { list-style: none; }
 
 /* ---------- Cabecera del blog ---------- */
 .blog-head {
-  padding: calc(var(--page-header-offset, var(--header-h)) + clamp(3rem, 7vw, 5rem)) 0 clamp(2.5rem, 5vw, 3.5rem);
+  padding: calc(var(--header-h) + clamp(3rem, 7vw, 5rem)) 0 clamp(2.5rem, 5vw, 3.5rem);
   border-bottom: 1px solid var(--line);
 }
 
@@ -1955,7 +1955,7 @@ ul { list-style: none; }
 
 /* ---------- Artículo ---------- */
 .article {
-  padding: calc(var(--page-header-offset, var(--header-h)) + clamp(2.5rem, 6vw, 4rem)) 0 clamp(4rem, 8vw, 6rem);
+  padding: calc(var(--header-h) + clamp(2.5rem, 6vw, 4rem)) 0 clamp(4rem, 8vw, 6rem);
 }
 
 .article__header { margin-bottom: clamp(2rem, 4vw, 3rem); }
