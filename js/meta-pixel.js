@@ -1,18 +1,33 @@
 (() => {
   const pixelId = "2993269237699220";
-  const preferenceKey = "hacker.meta-pixel.consent";
+  const analyticsId = "G-S4J8G2546M";
+  const metaKey = "hacker.meta-pixel.consent";
+  const googleKey = "hacker.google-analytics.consent";
   const privacyUrl = new URL("../aviso-de-privacidad.html", document.currentScript.src);
-  let pageViewSent = false;
+  let metaStarted = false;
+  let googleStarted = false;
 
-  function readPreference() {
+  function isEnabled(key) {
     try {
-      return localStorage.getItem(preferenceKey);
+      return localStorage.getItem(key) !== "denied";
     } catch {
-      return null;
+      return true;
     }
   }
 
-  function loadPixel() {
+  function addScript(src) {
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = src;
+    document.head.append(script);
+  }
+
+  function setMetaEnabled(enabled) {
+    if (!enabled) {
+      if (metaStarted) window.fbq("consent", "revoke");
+      return;
+    }
+
     if (!window.fbq) {
       const fbq = function () {
         if (fbq.callMethod) {
@@ -27,84 +42,63 @@
       fbq.version = "2.0";
       window.fbq = fbq;
       window._fbq = fbq;
-
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = "https://connect.facebook.net/en_US/fbevents.js";
-      document.head.append(script);
+      addScript("https://connect.facebook.net/en_US/fbevents.js");
     }
 
     window.fbq("consent", "grant");
-    if (!pageViewSent) {
+    if (!metaStarted) {
       window.fbq("set", "autoConfig", false, pixelId);
       window.fbq("init", pixelId);
       window.fbq("trackSingle", pixelId, "PageView");
-      pageViewSent = true;
+      metaStarted = true;
     }
   }
 
-  const banner = document.createElement("section");
-  banner.className = "advertising-cookies";
-  banner.setAttribute("aria-labelledby", "advertising-cookies-title");
-  banner.innerHTML = `
-    <h2 id="advertising-cookies-title">Cookies publicitarias</h2>
-    <p>Con tu permiso, usamos el píxel de Meta para medir las visitas al sitio y el rendimiento de nuestra publicidad. <a>Aviso de privacidad</a></p>
-    <div class="advertising-cookies__actions">
-      <button type="button" value="denied">Rechazar</button>
-      <button type="button" value="granted">Aceptar</button>
-    </div>
-  `;
-  banner.querySelector("a").href = privacyUrl.href;
-
-  const preferences = document.createElement("button");
-  preferences.type = "button";
-  preferences.className = "advertising-cookies-toggle";
-  preferences.textContent = "Preferencias de cookies";
-  preferences.setAttribute("aria-expanded", "false");
-  banner.id = "advertising-cookie-preferences";
-  preferences.setAttribute("aria-controls", banner.id);
-
-  function showBanner(visible) {
-    banner.hidden = !visible;
-    preferences.setAttribute("aria-expanded", String(visible));
+  function setGoogleEnabled(enabled) {
+    window["ga-disable-" + analyticsId] = !enabled;
+    if (enabled && !googleStarted) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+      addScript("https://www.googletagmanager.com/gtm.js?id=GTM-P6LWNMBX");
+      googleStarted = true;
+    }
   }
 
-  for (const choice of banner.querySelectorAll("button")) {
-    choice.addEventListener("click", () => {
+  const notice = document.createElement("aside");
+  notice.className = "measurement-notice";
+  notice.setAttribute("aria-label", "Medición del sitio");
+  notice.innerHTML = `
+    <p>Usamos Google Analytics y el píxel de Meta para medir visitas y publicidad. <a>Aviso de privacidad</a></p>
+    <details>
+      <summary>Preferencias de cookies</summary>
+      <label><input type="checkbox" id="hacker-google-analytics"> Google Analytics</label>
+      <label><input type="checkbox" id="hacker-meta-pixel"> Píxel de Meta</label>
+    </details>
+  `;
+  notice.querySelector("a").href = privacyUrl.href;
+  document.querySelector("main").before(notice);
+
+  function bindPreference(key, selector, apply) {
+    const checkbox = notice.querySelector(selector);
+    checkbox.checked = isEnabled(key);
+    apply(checkbox.checked);
+
+    checkbox.addEventListener("change", () => {
       try {
-        localStorage.setItem(preferenceKey, choice.value);
+        localStorage.setItem(key, checkbox.checked ? "granted" : "denied");
       } catch {
-        // The visitor can still choose for this page when storage is unavailable.
+        // The selection still applies to the current page.
       }
-      if (choice.value === "granted") {
-        loadPixel();
-      } else if (pageViewSent) {
-        window.fbq("consent", "revoke");
-      }
-      showBanner(false);
-      preferences.focus({ preventScroll: true });
+      apply(checkbox.checked);
+    });
+
+    window.addEventListener("storage", (event) => {
+      if (event.key !== key && event.key !== null) return;
+      checkbox.checked = isEnabled(key);
+      apply(checkbox.checked);
     });
   }
 
-  preferences.addEventListener("click", () => {
-    showBanner(banner.hidden);
-    if (!banner.hidden) banner.querySelector("button").focus();
-  });
-
-  window.addEventListener("storage", (event) => {
-    if (event.key !== preferenceKey && event.key !== null) return;
-    const preference = readPreference();
-    if (preference === "granted") {
-      loadPixel();
-    } else if (pageViewSent) {
-      window.fbq("consent", "revoke");
-    }
-    showBanner(preference === null);
-  });
-
-  const preference = readPreference();
-  showBanner(preference === null);
-  (document.querySelector("footer") || document.body).append(preferences);
-  document.body.append(banner);
-  if (preference === "granted") loadPixel();
+  bindPreference(googleKey, "#hacker-google-analytics", setGoogleEnabled);
+  bindPreference(metaKey, "#hacker-meta-pixel", setMetaEnabled);
 })();
